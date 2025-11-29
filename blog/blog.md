@@ -97,15 +97,18 @@ Chúng ta có thể dùng ngôn ngữ truy vấn **PromQL** để vẽ:
 
 ### Kết quả Demo
 
-Mình đã viết sẵn một script để giả lập các tình huống "bệnh tật" của model. Dưới đây là những gì chúng ta sẽ thấy trên Grafana:
-
-1.  **High Load Spike:** Khi lượng request tăng đột biến, Latency cũng dựng đứng lên. -> *Cần scale server gấp!*
-2.  **Data Drift:** Khi dữ liệu đầu vào bị thay đổi (ví dụ: kích thước hoa to bất thường), biểu đồ phân phối dự đoán sẽ bị lệch. -> *Cần train lại model!*
-3.  **Error Storm:** Khi có lỗi hệ thống, biểu đồ Error Rate sẽ đỏ lòm. -> *Fix bug ngay!*
-
 <div align="center">
-  <img src="images/results.png" alt="View Dag log" width="100%">
+  <img src="images/results.png" alt="View Dag log" width="80%">
 </div>
+
+Nhìn vào Dashboard (ảnh trên), chúng ta có thể thấy rõ ràng "bệnh án" của model được phơi bày chi tiết qua từng biểu đồ:
+
+1.  **Request Throughput:** Biểu đồ này cho thấy nhịp tim của hệ thống. Lưu lượng request không đều, có những đợt tăng vọt (High Load) thể hiện qua các đỉnh nhọn.
+2.  **Latency P95 & Avg:** Đây là chỉ số quan trọng nhất về trải nghiệm người dùng. Đường màu xanh (P95) và vàng (Avg) biến động mạnh khi hệ thống chịu tải cao. Khi Latency tăng thì đó là dấu hiệu server đang "khó thở".
+3.  **Error Rate:** Bình thường đường này nằm im ở mức 0%. Nhưng khi có sự cố (như kịch bản Error Storm), nó dựng đứng lên, báo động cho thấy hệ thống đang trả về lỗi hàng loạt.
+4.  **Prediction Distribution:** "Máy phát hiện nói dối" của chúng ta. Các cột màu đại diện cho các lớp hoa (Setosa, Versicolor, Virginica). Khi dữ liệu đầu vào bị Drift (hoa đột biến), tỷ lệ các cột này thay đổi bất thường so với phân phối chuẩn, báo hiệu model cần được train lại.
+5.  **Resource Usage:** CPU và RAM (Memory) cũng "nhảy múa" tương ứng với lượng request, giúp chúng ta biết khi nào cần nâng cấp phần cứng.
+
 
 ## 5. Kết luận
 
