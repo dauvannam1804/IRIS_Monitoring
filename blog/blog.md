@@ -1,7 +1,7 @@
 # Khi Model "Hắt hơi sổ mũi": Xây dựng hệ thống khám bệnh tự động với Prometheus & Grafana
 
 <div align="center">
-  <img src="images/thumbnail.png" alt="Blog Thumbnail" width="100%">
+  <img src="images/thumbnail.png" alt="Blog Thumbnail" width="60%">
 </div>
 
 
