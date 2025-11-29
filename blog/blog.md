@@ -1,4 +1,4 @@
-# Khi Model "Hắt hơi sổ mũi": Xây dựng hệ thống khám bệnh tự động với Prometheus & Grafana
+# Khi Model "Hắt hơi sổ mũi": Xây dựng hệ thống khám bệnh tự động với Prometheus & Grafana cho model
 
 <div align="center">
   <img src="images/thumbnail.png" alt="Blog Thumbnail" width="60%">
