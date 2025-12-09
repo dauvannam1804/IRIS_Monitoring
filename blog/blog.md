@@ -2,6 +2,8 @@
 
 <div align="center">
   <img src="images/thumbnail.png" alt="Blog Thumbnail" width="60%">
+  <br>
+  <i>(Hình ảnh được tạo bởi <a href="https://gemini.google.com/share/14123d43160f">Nano Banana Pro</a>)</i>
 </div>
 
 
