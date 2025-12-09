@@ -30,10 +30,43 @@ Chúng ta cần theo dõi những chỉ số "sinh tồn" sau:
 
 ## 3. Giới thiệu "Bác sĩ" & "Y tá": Prometheus & Grafana
 
-Để xây dựng hệ thống "khám bệnh" tự động này, chúng ta sẽ dùng bộ đôi huyền thoại trong làng monitoring:
+Để xây dựng hệ thống "khám bệnh" tự động này, chúng ta sẽ dùng bộ đôi huyền thoại trong làng monitoring: **Prometheus** và **Grafana**. Trước khi đi vào thực chiến, hãy cùng tìm hiểu xem họ là ai và tại sao lại được tin dùng đến vậy.
 
-*   **Prometheus (Bác sĩ thu thập):** Anh chàng này rất cần mẫn. Cơ chế hoạt động của anh ấy là **Pull** (Kéo). Cứ mỗi vài giây, anh ấy sẽ đi "gõ cửa" từng service của bạn và hỏi: *"Này, có chỉ số gì mới không? Cho xin cái số liệu!"*. Sau đó anh ấy ghi chép lại vào cuốn sổ tay (Time Series Database).
-*   **Grafana (Hồ sơ bệnh án):** Cô nàng này thì rất khéo tay. Cô ấy lấy dữ liệu khô khan từ sổ tay của Prometheus và vẽ thành những biểu đồ (Dashboard) cực kỳ trực quan, đẹp mắt. Nhìn vào đó, bạn biết ngay bệnh tình của hệ thống mà không cần đọc từng dòng log.
+### Prometheus là gì?
+Prometheus là một hệ thống giám sát mã nguồn mở (Open Source), hoạt động theo cơ chế **Pull** (Kéo). Thay vì đợi các service gửi dữ liệu đến, Prometheus sẽ chủ động định kỳ "gõ cửa" từng service để thu thập các chỉ số (metrics) và lưu trữ chúng vào một cơ sở dữ liệu chuỗi thời gian (Time Series Database - TSDB).
+
+**Ưu điểm:**
+- **Ngôn ngữ truy vấn mạnh:** PromQL hỗ trợ phân tích, lọc, tổng hợp và cảnh báo theo thời gian thực với độ linh hoạt rất cao.
+- **Hệ sinh thái phong phú:** Tích hợp dễ dàng với Kubernetes, Docker, microservices và nhiều exporter/thư viện client (Go, Python, Java…).
+- **Dễ triển khai:** Single-binary, không phụ thuộc hạ tầng phức tạp, cài đặt nhanh và chạy ổn định trên nhiều môi trường.
+- **Tùy biến linh hoạt:** Hỗ trợ tạo custom metrics đơn giản, phù hợp theo dõi ứng dụng hoặc mô hình AI.
+- **Alerting tích hợp:** Kết hợp mượt với Alertmanager để thiết lập cảnh báo từ bất kỳ biểu thức PromQL nào.
+
+**Nhược điểm:**
+- **Lưu trữ ngắn hạn:** Mặc định chỉ giữ dữ liệu khoảng 15 ngày; muốn lưu dài hạn phải dùng Thanos, Cortex hoặc giải pháp tương tự.
+- **Khó mở rộng theo chiều ngang:** Thiết kế single-node khiến việc scale phải dùng federation, dẫn đến độ phức tạp cao.
+- **PromQL không dễ học:** Sức mạnh cao nhưng cú pháp khá khó đối với người mới.
+- **Tiêu tốn tài nguyên:** Scrape quá nhiều metrics có thể gây tốn CPU/RAM/disk nếu không tối ưu.
+- **Chỉ tập trung vào metrics:** Không hỗ trợ logs/events — muốn full observability cần thêm Grafana Loki hoặc ELK.
+- **Quản lý thủ công:** Cấu hình scrape targets/manual service discovery có thể tốn công nếu không chạy trong môi trường dynamic như Kubernetes.
+
+### Grafana là gì?
+Nếu Prometheus là "bộ não" lưu trữ và xử lý dữ liệu, thì Grafana chính là "gương mặt" đại diện. Grafana là một nền tảng phân tích và trực quan hóa dữ liệu đa nguồn. Nó có thể kết nối với Prometheus (và nhiều nguồn khác) để biến những con số khô khan thành các biểu đồ (Dashboard) sống động.
+
+**Ưu điểm:**
+- **Đẹp & trực quan:** Tạo dashboard chuyên nghiệp, rõ ràng và rất mạnh khi phân tích downtime hoặc biến động.
+- **Kết nối đa nguồn:** Hỗ trợ đa số data sources phổ biến (Prometheus, MySQL, PostgreSQL, Elasticsearch, Loki…) và nhiều API/công cụ bên thứ ba.
+- **Dễ triển khai:** Cài đặt nhanh trên cloud hoặc server, chỉ cần vài bước là chạy.
+- **Plugin phong phú:** Sở hữu hệ sinh thái plugin lớn giúp mở rộng khả năng xử lý và trực quan hóa dữ liệu.
+- **Monitoring & Alerting mạnh:** Theo dõi, trực quan hóa và gửi cảnh báo qua Email, Slack, Telegram… rất hiệu quả.
+
+**Nhược điểm:**
+- **Phân quyền hạn chế:** Tính năng cấp quyền trên dashboard chưa đủ chi tiết cho môi trường yêu cầu bảo mật cao.
+- **Dashboard mặc định ít:** Muốn đẹp và phù hợp use-case thường phải tự thiết kế.
+- **Giới hạn báo cáo:** Loại báo cáo tích hợp sẵn chưa đa dạng, chưa đáp ứng tốt nhu cầu quản trị.
+- **Cấu hình đôi khi phức tạp:** Việc lưu file, tối ưu data source hoặc dựng alert nâng cao có thể rườm rà.
+- **Tự động hóa báo cáo còn yếu:** Chưa mạnh trong việc tạo và gửi báo cáo tự động hằng ngày.
+
 
 ## 4. Thực chiến: Bắt tay vào làm (Hands-on)
 
@@ -118,7 +151,16 @@ Với bộ đôi Prometheus và Grafana, bạn có thể ngủ ngon hơn mỗi t
 
 Hy vọng bài viết này giúp ích cho các bạn trên con đường MLOps. Hẹn gặp lại ở các bài viết sau!
 
----
-*Source code chi tiết của dự án này các bạn có thể tham khảo tại: [https://github.com/dauvannam1804/IRIS_Monitoring](https://github.com/dauvannam1804/IRIS_Monitoring)*
+## Tham khảo
 
-*Tài liệu AIO: [Giám sát hệ thống AI với Grafana và Prometheus](https://www.facebook.com/share/p/185KFyLtBS/)*
+*[Understanding Data Drift in Machine Learning](https://www.datacamp.com/tutorial/grafana-tutorial-monitoring-machine-learning-models)*
+
+*[Latency in Machine Learning Inference](https://medium.com/@abuolubunmi21/understanding-ml-inference-latency-and-ml-services-latency-9082e24dfe59)*
+
+*[Prometheus: A Powerful Monitoring Solution (Pros & Cons)](https://medium.com/@b0ld8/prometheus-a-powerful-monitoring-solution-pros-cons-ed8f193939ad)*
+
+*[Grafana Pros & Cons](https://www.peerspot.com/products/grafana-pros-and-cons)*
+
+*[IRIS_Monitoring – GitHub Repository](https://github.com/dauvannam1804/IRIS_Monitoring)*
+
+*[Tài liệu AIO: Giám sát hệ thống AI với Grafana và Prometheus](https://www.facebook.com/share/p/185KFyLtBS/)*
